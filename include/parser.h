@@ -13,7 +13,37 @@
  *	char *jump(void)
  */
 
+#ifndef _PARSER_H
+#define _PARSER_H
+
 #include "glo.h"
+#include <stdio.h>
+
+/* command type */
+typedef enum c_type{
+	A_COMMAND,
+	C_COMMAND,
+	L_COMMAND
+} command_type;
+
+/* command struct */
+#define MAX_SYMBOL_LENGTH	1000
+#define MAX_LENGTH		1000
+struct command{
+	char symbol[MAX_SYMBOL_LENGTH];
+	command_type type;
+	char dest[MAX_LENGTH];
+	char comp[MAX_LENGTH];
+	char jump[MAX_LENGTH];
+};
+
+FILE* fp;
+struct command *current_command;
+
+/*
+ *  get file pointer to assemble(.asm)
+ */
+void parse_file(FILE *fp);
 
 /*
  *  check if the command still exists in the entered file.
@@ -23,6 +53,7 @@ int hasMoreCommands(void);
 
 /*
  *  read the next command from the input and make it the current command.
+ *  if files have not next command, return immediately.
  *  return nothing.
  */
 void advance(void);
@@ -30,13 +61,6 @@ void advance(void);
 /*
  *  return current command type.
  */
-/* command type */
-typedef enum c_type{
-	A_COMMAND,
-	C_COMMAND,
-	L_COMMAND
-} command_type;
-
 command_type commandType(void);
 
 /*
@@ -58,3 +82,10 @@ char *comp(void);
  *  return jump mnemonic of current C instruction.
  */
 char *jump(void);
+
+/*
+ * helper :
+ */
+void reg_cmd(void);
+
+#endif // _PARSER_H

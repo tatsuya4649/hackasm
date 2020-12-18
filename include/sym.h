@@ -1,4 +1,8 @@
 
+
+#ifndef _SYM_H
+#define _SYM_H
+
 /* the struct of symbol table */
 typedef struct symbol_table{
 	char 	*name;
@@ -39,3 +43,5 @@ struct symbol_table SCREEN	=	{"SCREEN"	,0x4000,&KBD};
 struct symbol_table KBD		=	{"KBD"		,0x6000,NULL_SYMBLE_TABLE};
 
 struct symbol_table *s_s_table = &SP;
+
+#endif // _SYM_H
