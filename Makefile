@@ -1,20 +1,27 @@
 
 CC := gcc
-CFLAGS := -g -Wall -Wextra
+CFLAGS := -g -Wall -Wextra -O0
 INCLUDE := -I./include
-SRC := -I./src
-MAIN = ./bin/main.o
-PARSER = ./bin/parser.o
-CODE = ./bin/code.o
+ISRC := -I./src
+SRC := ./src/
+BIN := ./bin/
+MAIN = $(SRC)main.c
+PARSER = $(SRC)parser.c
+CODE = $(SRC)code.c
+MAINBI = $(BIN)main
+SYM = $(SRC)sym.c
 
-all:	$(MAIN) $(PARSER)
-	gcc -o ./bin/main $(INCLUDE) ./src/main.c ./src/parser.c ./src/code.c
+RSRC := $(SRC)parser.c $(SRC)main.c $(SRC)code.c $(SRC)sym.c
 
-$(MAIN):	./src/main.c
-	gcc -c -o $(MAIN) ./src/main.c $(INCLUDE)
+all:	$(MAIN) $(PARSER) $(SYM) $(CODE)
+	gcc $(CFLAGS) -o $(BIN)main $(INCLUDE) $^
 
-$(PARSER):	./src/parser.c
-	gcc -c -o $(PARSER) ./src/parser.c $(INCLUDE) $(SRC)
+$(BIN)%.o:	$(SRC)%.c
+	gcc -c -o $@ $< $(INCLUDE) $(ISRC)
 
-$(CODE):	./src/code.c
-	gcc -c -o $(CODE) ./src/code.c $(INCLUDE) $(SRC)
+run:
+	$(MAINBI) ./test/$(FILE).asm
+test_run: all
+	$(MAINBI) ./test/test.asm
+clean:
+	rm -rf $(BIN)*

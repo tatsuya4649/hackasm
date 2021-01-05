@@ -27,7 +27,6 @@ typedef enum c_type{
 } command_type;
 
 /* command struct */
-#define MAX_SYMBOL_LENGTH	1000
 #define MAX_LENGTH		1000
 struct command{
 	char symbol[MAX_SYMBOL_LENGTH];
@@ -35,15 +34,21 @@ struct command{
 	char dest[MAX_LENGTH];
 	char comp[MAX_LENGTH];
 	char jump[MAX_LENGTH];
+	long now_row;
 };
 
 FILE* fp;
+/* pointer to now command */
 struct command *current_command;
 
 /*
  *  get file pointer to assemble(.asm)
  */
 void parse_file(FILE *fp);
+/*
+ *  seek file to start
+ */
+int start_seek(void);
 
 /*
  *  check if the command still exists in the entered file.
@@ -84,7 +89,7 @@ char *comp(void);
 char *jump(void);
 
 /*
- * helper :
+ * helper : analyze command types
  */
 void reg_cmd(void);
 

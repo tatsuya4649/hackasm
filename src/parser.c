@@ -16,14 +16,19 @@ int n;
 int find_line(void);
 void parse_file(FILE *afp){
 	fp = afp;
-//	while (hasMoreCommands()){
-//		reg_cmd();
-//	}
+}
+extern long new_line;
+int start_seek(void){
+	if (fp==NULL) return -1;
+	if (fseek(fp,0,SEEK_SET) != 0) return -1;
+	printf("seek .asm file to start!\n");
+	new_line=0;
+	return 0;
 }
 
 int find_line(void){
-	n = 0;
-	while ((*(commands+n) = fgetc(fp)) != '\n'){
+	n = 0; 
+	while ((fp != NULL) && (*(commands+n) = fgetc(fp)) != '\n'){
 		/* find out file end */
 		if (*(commands+n) == EOF) return -1;
 		if (*(commands+n) != '\t' && *(commands+n) != ' '){
@@ -60,16 +65,21 @@ void reg_cmd(void){
 				printf("error : if you want to comment, must be '//'.\n");
 				exit(1);
 			}
-			break;
+			return;
 		case AINS:
 			acommand();
-			break;
+			return;
 		case LABEL:
 			lcommand();
-			break;
+			return;
 		default:
 			ccommand();
-			break;
+			return;
+	}
+	/* free memory of pre current_command */
+	if (current_command!=NULL){
+		free(current_command);
+		current_command = NULL;
 	}
 }
 
@@ -109,13 +119,11 @@ void _jump(char *);
 void _comp(char *);
 void ccommand(void){
 	alloc_command();
+	current_command->symbol[0] = '\0';
 	current_command->type = C_COMMAND;
 	destination(current_command->dest);
 	_jump(current_command->jump);
 	_comp(current_command->comp);
-//	printf("%s\n",current_command->dest);
-//	printf("%s\n",current_command->jump);
-//	printf("%s\n",current_command->comp);
 }
 
 void destination(char *dest){
@@ -174,16 +182,17 @@ void _comp(char *cmp){
 		}
 	}
 	int k;
-	for (k=0;*(commands+i)!='\n' && *(commands+i)!=' ' && *(commands+i)!='\0';k++,i++){
+	for (k=0;*(commands+i)!='\n' && *(commands+i)!=' ' && *(commands+i)!='\0' && *(commands+i)!=';';k++,i++){
 		*(cmp+k) = *(commands+i);
 	}
-	k++;
+	//k++;
 	*(cmp+k) = '\0';
 }
 
 void lsymbol(char *);
 void lcommand(void){
 	alloc_command();
+	current_command->symbol[0] = '\0';
 	lsymbol(current_command->symbol);
 	current_command->type = L_COMMAND;
 }
@@ -195,6 +204,10 @@ void lsymbol(char *sym){
 	for (j=0;*(commands+i)!=')';j++,i++){
 		if (*(commands+i) == '\n')
 			printf("error : no label end ')'");
+		if (j > MAX_SYMBOL_LENGTH){
+			printf("error : too symbol long\n");
+			exit(1);
+		}
 		*(sym+j) = *(commands+i);
 	}
 	j++;
@@ -248,4 +261,10 @@ char *jump(void){
 		printf("error : jump must have C_COMMAND\n");
 		return NULL;
 	}
+}
+
+/* helper */
+long new_line = 0;
+long update_line(){
+	return ++new_line;
 }
